@@ -83,9 +83,8 @@ int main() {
     std::ofstream outfile("/etc/homeless");
     outfile.close();
     load_default_settings();
-    save_listings_to_file();
   }
-  if(load_listings_from_file("/etc/homeless") == nullptr) {
+  else if(load_listings_from_file("/etc/homeless") == nullptr) {
     load_default_settings();
   }
   //load_default_settings();
