@@ -5,6 +5,7 @@ Sahibinden.com scraper telegram bot written in  C++
 * Curl
 * TgBot-cpp
 * CMake
+* Nlohmann-json
 
 # Usage
  * Set the `FC_DEV` environment variable to your group ID or your user ID.
