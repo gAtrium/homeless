@@ -298,7 +298,6 @@ bool send_listing_to_gc(listing listing) {
   }
   listing.tg_message_id = tgmessage->messageId;
   add_listing(listing);
-  save_listings_to_file();
   return true;
 }
 

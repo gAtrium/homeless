@@ -210,6 +210,7 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* out
 int total_pages = 0;
 const std::string url_arg_pageOffset = "pagingOffset";
 int parse_page_amount(std::string response, bool isFirst);
+bool did_something = false;
 void scraper_main_thread() {
   // init curl
   curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -307,6 +308,10 @@ void scraper_main_thread() {
       }
       page_offset += 50;
     } while (page_offset < total_pages * 50);
+    if(did_something) {
+      save_listings_to_file();
+      did_something = false;
+    }
   }
 }
 
@@ -470,6 +475,7 @@ int parse_page(std::string response) {
         std::this_thread::sleep_for(std::chrono::seconds(2));
         ex_listing->price = price;
         succ = succ && send_listing_to_gc(*ex_listing);
+        did_something = true;
         if(!succ) {
           crashed = true;
           break;
@@ -481,6 +487,7 @@ int parse_page(std::string response) {
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     send_listing_to_gc(listing); // this also handles updating the listings map
                                  // and editing the sent message.
+    did_something = true;
   }
   return listing_count;
 }
