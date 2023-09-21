@@ -1,0 +1,5 @@
+project(homeless)
+find_package(CURL REQUIRED) 
+add_executable(${PROJECT_NAME} main.cpp listing.cpp listing.hpp bot_sneedment.hpp scraper.cpp scraper.hpp)
+include_directories(${CURL_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} PRIVATE TgBot ${CURL_LIBRARIES})
