@@ -16,3 +16,6 @@ add_executable(${PROJECT_NAME} main.cpp listing.cpp listing.hpp bot_sneedment.hp
 
 target_link_libraries(${PROJECT_NAME} PRIVATE TgBot OpenSSL::Crypto ${CURL_LIBRARIES})
 include_directories(${CURL_INCLUDE_DIR})
+
+#install executable to /usr/bin
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
