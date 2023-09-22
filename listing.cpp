@@ -9,6 +9,7 @@ std::vector<listing*> listings;
 std::map<unsigned long, listing*> listings_map;
 std::map<unsigned int, listing*> listings_map_mid;
 unsigned long long ENTRY_MAGIC_BYTE = 0xDB00B1E5;
+unsigned long long FILE_MAGIC_BYTE = 0xD8008135;
 std::string read_until_null(std::fstream &file) {
     std::string ret = "";
     char c;
@@ -38,12 +39,31 @@ std::string read_string_from_file(std::ifstream &file) {
 std::vector<listing>* load_listings_from_file(std::string filename){
     //open the file as binary
     std::ifstream file(filename, std::ios::binary);
-
+    //try reading the FILE_MAGIC_BYTE
+    unsigned long long magic_byte;
+    try {
+        file.read((char*)&magic_byte, sizeof(magic_byte));
+    }
+    catch (std::exception e) {
+        std::cerr << "Could not read magic byte, possibly first-time execution. Aborting" << std::endl;
+        return nullptr;
+    }
+    if(magic_byte != FILE_MAGIC_BYTE){
+        std::cerr << "Magic byte is wrong, possibly first-time execution. Aborting" << std::endl;
+        return nullptr;
+    }
     //create a vector to store the listings
     std::vector<listing>* listings = new std::vector<listing>;
     //read the entry count
     size_t entry_count;
-    file.read((char*)&entry_count, sizeof(entry_count));
+    //try to read the entry count
+    try {
+        file.read((char*)&entry_count, sizeof(entry_count));
+    }
+    catch(std::exception e){
+        std::cerr << "Could not read entry count, possibly first-time execution. Aborting" << std::endl;
+        return nullptr;
+    }
     //read the refresh interval setting as string until null byte
     set_interval(read_string_from_file(file));
     set_min_price(read_string_from_file(file));
@@ -101,6 +121,8 @@ std::vector<listing>* load_listings_from_file(std::string filename){
 void save_listings_to_file(std::string filename) {
     //open the file
     std::ofstream file(filename, std::ios::binary);
+    //write the magic byte
+    file.write((char*)&FILE_MAGIC_BYTE, sizeof(FILE_MAGIC_BYTE));
     //write the entry count to file
     size_t entry_count = listings.size();
     file.write((char*)&entry_count, sizeof(entry_count));
