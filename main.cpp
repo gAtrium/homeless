@@ -16,7 +16,7 @@
 using namespace std;
 
 
-long fc_dev = 0;
+long long fc_dev = 0;
 void dump_message(TgBot::Message::Ptr message_ptr) {
   // dump every field of message object to stdout with null safety
   TgBot::Message message = *message_ptr;
@@ -62,7 +62,7 @@ int main() {
   //get FC_DEV from environment variables
   char * fc_dev_env = getenv("FC_DEV");
   if(fc_dev_env != nullptr) {
-    fc_dev = std::stol(fc_dev_env);
+    fc_dev = std::stoll(fc_dev_env);
   }
   else {
     std::cout << "FC_DEV not found in environment variables, exiting..." << std::endl;
