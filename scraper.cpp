@@ -325,9 +325,9 @@ int parse_page_amount(std::string response, bool isFirst) {
   // get the substring between those two
   auto page_navi_buttons_html =
       response.substr(page_navi_buttons, closing_ul - page_navi_buttons);
-  std::ofstream i("page_amount.html", std::ofstream::out | std::ofstream::trunc);
-  i << page_navi_buttons_html;
-  i.close();
+  // std::ofstream i("page_amount.html", std::ofstream::out | std::ofstream::trunc);
+  // i << page_navi_buttons_html;
+  // i.close();
   int li_count = 0;
   size_t last_li_index;
   // count how many <li> tags we have
@@ -385,9 +385,9 @@ int parse_page(std::string response) {
   json_start = response.find(start_tag ,json_start + 10);
   // find the end script tag
   auto json_end = response.find("</script>", json_start);
-  std::ofstream i("parse_page_func_what.html", std::ofstream::out | std::ofstream::trunc);
-  i << response.substr(json_start);
-  i.close();
+  // std::ofstream i("parse_page_func_what.html", std::ofstream::out | std::ofstream::trunc);
+  // i << response.substr(json_start);
+  // i.close();
   if (json_start == std::string::npos || json_end == std::string::npos) {
     std::cout << "fuck" << std::endl;
     exit(-1);
