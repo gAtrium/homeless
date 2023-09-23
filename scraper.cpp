@@ -320,6 +320,9 @@ int parse_page_amount(std::string response, bool isFirst) {
   // class="pageNaviButtons"> get the position of the first <ul
   // class="pageNaviButtons">
   auto page_navi_buttons = response.find("<ul class=\"pageNaviButtons\">");
+  if(page_navi_buttons == response.npos) {
+    return 0;
+  }
   // find the closing ul tag after that
   auto closing_ul = response.find("</ul>", page_navi_buttons);
   // get the substring between those two
