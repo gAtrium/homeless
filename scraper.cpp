@@ -20,7 +20,7 @@ std::string curl_command;
 std::vector<std::string> curl_headers;
 unsigned int min_price = 3000;
 unsigned int max_price = 5000;
-std::string query = "bursa+kiralık+daire";
+std::string query = "bursa+kiralik+daire";
 std::string base_url = "https://www.sahibinden.com/kiralik-daire/"
                        "bursa?pagingSize=50&sorting=price_asc";
 const std::string url_arg_minprice = "price_min";
@@ -251,7 +251,7 @@ void scraper_main_thread() {
       // perform the curl request and get the response
       std::string response;
       auto _url = final_url + "&" + url_arg_pageOffset + "=" + std::to_string(page_offset);
-      curl_easy_setopt(curl, CURLOPT_URL, final_url.c_str());
+      curl_easy_setopt(curl, CURLOPT_URL, _url.c_str());
        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
       CURLcode res;

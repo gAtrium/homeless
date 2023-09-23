@@ -48,7 +48,7 @@ void load_default_settings(){
   set_max_price("5000");
   add_filters_to_title("arkadaş");
   set_interval("10m");
-  set_query_text("Bursa kiralık daire");
+  set_query_text("Bursa kiralik daire");
 }
 TgBot::Bot * _bot;
 int _main() {
