@@ -16,6 +16,7 @@ std::string get_base_url();
 std::string set_query_text(std::string query);
 std::string get_query_text();
 std::string add_filters_to_title(std::string nonoword);
+std::string remove_filters_from_title(std::string nonoword);
 std::string get_nono_words();
 std::vector<std::string>* get_nono_words_vector();
 void startscraper();

@@ -354,6 +354,18 @@ std::string add_filters_to_title(std::string nonoword) {
   no_no_words.push_back(nonoword);
   return "Added " + nonoword + " to the no no list.";
 };
+
+std::string remove_filters_from_title(std::string nonoword) {
+  std::transform(nonoword.begin(), nonoword.end(), nonoword.begin(), ::tolower);
+  auto it = std::find(no_no_words.begin(), no_no_words.end(), nonoword);
+  if (it == no_no_words.end()) {
+    return "Could not find this word in the list.";
+  }
+  // remove it from the list
+  no_no_words.erase(it);
+  return "Removed " + nonoword + " from the no no list.";
+};
+
 std::string get_nono_words() {
   std::string words;
   for (int i = 0; i < no_no_words.size(); i++) {

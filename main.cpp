@@ -113,6 +113,8 @@ int main() {
         "/dismiss <reason> #reply to dismiss a listing with reason, reply dismiss again to remove the dismiss status.\n"
         "/set min/max <price> #set minimum or maximum price\n"
         "/set interval <intervalS/M/H> #set refresh interval\n"
+        "/addfilter <filter> #add a filter to the title\n"
+        "/removefilter <filter> #remove a filter from the title\n"
         "/getsettings print current bot settings\n"
         "\n Bot may occasionally want you to send new curl commands, "
         "that's due to cloudflare sussing out.");
@@ -163,7 +165,11 @@ int main() {
       bot.getApi().sendMessage(message->chat->id, "Setting maximum price to " + price);
       return;
     }
-    bot.getApi().sendMessage(message->chat->id, "Setting price");
+    else if(text.find("interval") != std::string::npos) {
+      auto interval = text.substr(text.find("interval") + 9);
+      bot.getApi().sendMessage(message->chat->id, set_interval(interval));
+      return;
+    }
   });
   
   bot.getEvents().onCommand("curlupdate", [&bot](TgBot::Message::Ptr message) {
@@ -175,12 +181,30 @@ int main() {
     std::string curl_command = message->text.substr(message->text.find("curlupdate") + 11);
     bot.getApi().sendMessage(message->chat->id, set_curl_command(curl_command));
   });
-  
+  //add filter to title
+  bot.getEvents().onCommand("addfilter", [&bot](TgBot::Message::Ptr message) {
+    if(message->chat->id != fc_dev) return;
+    //check if we have message text in the pointer and if it's long enough
+    if(!message) return;
+    if(message->text.size() < 12) return;
+    //take the text after the /addfilter text 
+    std::string filter = message->text.substr(message->text.find("addfilter") + 10);
+    bot.getApi().sendMessage(message->chat->id, add_filters_to_title(filter));
+  });
+  //remove filter from title
+  bot.getEvents().onCommand("removefilter", [&bot](TgBot::Message::Ptr message) {
+    if(message->chat->id != fc_dev) return;
+    //check if we have message text in the pointer and if it's long enough
+    if(!message) return;
+    if(message->text.size() < 13) return;
+    //take the text after the /removefilter text 
+    std::string filter = message->text.substr(message->text.find("removefilter") + 13);
+    bot.getApi().sendMessage(message->chat->id, remove_filters_from_title(filter));
+  });
   //get settings
   bot.getEvents().onCommand("getsettings", [&bot](TgBot::Message::Ptr message) {
     if(message->chat->id != fc_dev) return;
     std::string settings = "Current settings:\n";
-    settings += "Curl command: " + get_curl_command() + "\n";
     settings += "Min price: " + get_min_price() + "\n";
     settings += "Max price: " + get_max_price() + "\n";
     settings += "Interval: " + get_interval() + "\n";
