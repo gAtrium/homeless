@@ -68,23 +68,22 @@ std::string set_curl_command(std::string command) {
     // check if we have -H after this one and substr until that command
     auto next = command.find("-H '", first + 1);
     if (next != std::string::npos) {
-        first +=2;
-        next -= 4;
-        auto s = command.substr(first + 2, next - first);
-        std::cout << s << std::endl;
-        curl_headers.push_back(s);
-      headers = curl_slist_append(
-          headers, s.c_str());
+      first += 2;
+      next -= 4;
+      auto s = command.substr(first + 2, next - first);
+      std::cout << s << std::endl;
+      curl_headers.push_back(s);
+      headers = curl_slist_append(headers, s.c_str());
       // set the command to the rest of the string
       command = command.substr(next);
     } else {
       // we don't have -H after this one, substr until the end
       auto s = command.substr(first + 2);
-      //find the first '
+      // find the first '
       auto start = s.find("'");
-      //find the last '
+      // find the last '
       auto end = s.find_last_of("'");
-      //substr between those two
+      // substr between those two
       s = s.substr(start + 1, end - start - 1);
       curl_headers.push_back(s);
       headers = curl_slist_append(headers, s.c_str());
@@ -97,13 +96,13 @@ std::string set_curl_command(std::string command) {
   return "Parsed the cUrl command. Scraping should begin momentarily.";
 }
 
-std::string get_curl_command() { 
-    std::string s;
-    //concat curl_header items into s and return it
-    for (int i = 0; i < curl_headers.size(); i++) {
-        s += curl_headers[i] + "\n";
-    }
-    return s;
+std::string get_curl_command() {
+  std::string s;
+  // concat curl_header items into s and return it
+  for (int i = 0; i < curl_headers.size(); i++) {
+    s += curl_headers[i] + "\n";
+  }
+  return s;
 }
 
 std::string set_min_price(std::string price) {
@@ -173,7 +172,7 @@ std::string set_base_url(std::string url) {
   return "Set base url to " + url;
 }
 std::string get_base_url() { return base_url; }
-bool get_run_thread() {return run_thread;};
+bool get_run_thread() { return run_thread; };
 std::string set_query_text(std::string query) {
   // replace spaces with + and set it to ::query
   std::replace(query.begin(), query.end(), ' ', '+');
@@ -201,10 +200,11 @@ void build_final_url() {
   // return final_url;
 }
 // Callback function to write the response body to a string
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
-    size_t totalSize = size * nmemb;
-    output->append((char*)contents, totalSize);
-    return totalSize;
+size_t WriteCallback(void *contents, size_t size, size_t nmemb,
+                     std::string *output) {
+  size_t totalSize = size * nmemb;
+  output->append((char *)contents, totalSize);
+  return totalSize;
 }
 
 int total_pages = 0;
@@ -219,14 +219,7 @@ void scraper_main_thread() {
   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
   while (true) {
     if (!run_thread) {
-      int slept_secs = 0;
-      while (slept_secs < interval) {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        if (run_thread) {
-          break; // killing the thread mid sleep
-        }
-        slept_secs++;
-      }
+      std::this_thread::sleep_for(std::chrono::seconds(2));
       continue;
     }
     if (final_url.size() < 1) {
@@ -250,14 +243,15 @@ void scraper_main_thread() {
     do {
       // perform the curl request and get the response
       std::string response;
-      auto _url = final_url + "&" + url_arg_pageOffset + "=" + std::to_string(page_offset);
+      auto _url = final_url + "&" + url_arg_pageOffset + "=" +
+                  std::to_string(page_offset);
       curl_easy_setopt(curl, CURLOPT_URL, _url.c_str());
-       curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+      curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
       CURLcode res;
       try {
         res = curl_easy_perform(curl);
-      } catch ( std::exception& e) {
+      } catch (std::exception &e) {
         send_message_to_gc("curl_easy_perform() failed: " +
                            std::string(curl_easy_strerror(res)));
         run_thread = false;
@@ -278,26 +272,29 @@ void scraper_main_thread() {
         run_thread = false;
         continue;
       }
-      int _total_pages =0;
+      int _total_pages = 0;
       try {
         _total_pages = parse_page_amount(
-          response, ((page_offset == 0 || page_offset == (total_pages - 1) * 50)
-                         ? true
-                         : false));
-      }
-      catch(std::exception& e) {
-        send_message_to_gc("Failed to parse total amount of pages. Something is wrong.");
+            response,
+            ((page_offset == 0 || page_offset == (total_pages - 1) * 50)
+                 ? true
+                 : false));
+      } catch (std::exception &e) {
+        send_message_to_gc(
+            "Failed to parse total amount of pages. Something is wrong.");
         std::cout << response << std::endl;
         run_thread = false;
       }
-      if(!run_thread) break;
+      if (!run_thread)
+        break;
       if (total_pages != 0 && _total_pages != total_pages) {
         break; // we'll parse it again later, something drastic has happened.
       }
       if (total_pages == 0) {
         total_pages = _total_pages;
       }
-      std::this_thread::sleep_for(std::chrono::seconds(1)); // Go ahead, find all the sleep calls here I dare you.
+      std::this_thread::sleep_for(std::chrono::seconds(
+          1)); // Go ahead, find all the sleep calls here I dare you.
       int parsed_in_page = parse_page(response);
       if (parsed_in_page == 0) {
         send_message_to_gc("Failed to parse any listings. Stopping thread.");
@@ -308,9 +305,17 @@ void scraper_main_thread() {
       }
       page_offset += 50;
     } while (page_offset < total_pages * 50);
-    if(did_something) {
+    if (did_something) {
       save_listings_to_file();
       did_something = false;
+    }
+    int slept_secs = 0;
+    while (slept_secs < interval) {
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+      if (!run_thread) {
+        break; // killing the wait mid-sleep to stop thread.
+      }
+      slept_secs+=2;
     }
   }
 }
@@ -320,7 +325,7 @@ int parse_page_amount(std::string response, bool isFirst) {
   // class="pageNaviButtons"> get the position of the first <ul
   // class="pageNaviButtons">
   auto page_navi_buttons = response.find("<ul class=\"pageNaviButtons\">");
-  if(page_navi_buttons == response.npos) {
+  if (page_navi_buttons == response.npos) {
     return 0;
   }
   // find the closing ul tag after that
@@ -328,9 +333,8 @@ int parse_page_amount(std::string response, bool isFirst) {
   // get the substring between those two
   auto page_navi_buttons_html =
       response.substr(page_navi_buttons, closing_ul - page_navi_buttons);
-  // std::ofstream i("page_amount.html", std::ofstream::out | std::ofstream::trunc);
-  // i << page_navi_buttons_html;
-  // i.close();
+  // std::ofstream i("page_amount.html", std::ofstream::out |
+  // std::ofstream::trunc); i << page_navi_buttons_html; i.close();
   int li_count = 0;
   size_t last_li_index;
   // count how many <li> tags we have
@@ -389,20 +393,18 @@ void set_scraper_thread(std::thread *thread) { scraper_thread = thread; }
 
 int parse_page(std::string response) {
   int listing_count;
-  //std::ofstream i("parse_page_func.html", std::ofstream::out | std::ofstream::trunc);
-  //i << response;
-  //i.close();
-  // lucky for us the listings in the page are given at the end of document as a
-  // JSON. find the first <script type="application/ld+json">
+  // std::ofstream i("parse_page_func.html", std::ofstream::out |
+  // std::ofstream::trunc); i << response; i.close();
+  //  lucky for us the listings in the page are given at the end of document as
+  //  a JSON. find the first <script type="application/ld+json">
   const std::string start_tag = "<script type=\"application/ld+json\">";
   std::cout << start_tag << std::endl << response.size() << std::endl;
   auto json_start = response.find(start_tag);
-  json_start = response.find(start_tag ,json_start + 10);
+  json_start = response.find(start_tag, json_start + 10);
   // find the end script tag
   auto json_end = response.find("</script>", json_start);
-  // std::ofstream i("parse_page_func_what.html", std::ofstream::out | std::ofstream::trunc);
-  // i << response.substr(json_start);
-  // i.close();
+  // std::ofstream i("parse_page_func_what.html", std::ofstream::out |
+  // std::ofstream::trunc); i << response.substr(json_start); i.close();
   if (json_start == std::string::npos || json_end == std::string::npos) {
     std::cout << "fuck" << std::endl;
     exit(-1);
@@ -417,15 +419,14 @@ int parse_page(std::string response) {
   // take a substr of the json without the first 34 characters and without the
   // last 9 characters
   json = json.substr(36, json.size() - 36);
-  //std::ofstream j("parse_page_func_json.html", std::ofstream::out | std::ofstream::trunc);
-  //j << json;
-  //j.close();
-  // now we have a valid json, parse it
-  //output json to a text file, override if present
-  //std::ofstream json_file;
-  //json_file.open("json.txt", std::ofstream::out | std::ofstream::trunc);
-  //json_file << json;
-  //json_file.close();
+  // std::ofstream j("parse_page_func_json.html", std::ofstream::out |
+  // std::ofstream::trunc); j << json; j.close();
+  //  now we have a valid json, parse it
+  // output json to a text file, override if present
+  // std::ofstream json_file;
+  // json_file.open("json.txt", std::ofstream::out | std::ofstream::trunc);
+  // json_file << json;
+  // json_file.close();
   auto json_obj = nlohmann::json::parse(json);
   // json format:
   /*
@@ -437,7 +438,7 @@ int parse_page(std::string response) {
           "Product"
       ],
       "name": "Bayan ev arkadasi ariyorum", //Benefits of being a woman in
-  Turkey: A case study 
+  Turkey: A case study
   "numberOfRooms": "2+1", "address": {
           "@type": "PostalAddress",
           "addressLocality": "Nilüfer",
@@ -484,21 +485,23 @@ int parse_page(std::string response) {
     if (ex_listing != nullptr) {
       // check if the price differs from what we have. If it does, update it
       if (price != ex_listing->price) {
-        bool succ = send_reply_to_gc("Price action:" + ex_listing->price + " -> " + price,
-                         ex_listing->tg_message_id);
+        bool succ = send_reply_to_gc("Price action:" + ex_listing->price +
+                                         " -> " + price,
+                                     ex_listing->tg_message_id);
         // edit the message
         std::this_thread::sleep_for(std::chrono::seconds(2));
         ex_listing->price = price;
         succ = succ && send_listing_to_gc(*ex_listing);
         did_something = true;
-        if(!succ) {
+        if (!succ) {
           crashed = true;
           break;
         }
       }
       continue;
     }
-    listing listing = {title, price,location,numrooms, listingID, url, "", UNCONTACTED};
+    listing listing = {title,     price, location, numrooms,
+                       listingID, url,   "",       UNCONTACTED};
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     send_listing_to_gc(listing); // this also handles updating the listings map
                                  // and editing the sent message.
