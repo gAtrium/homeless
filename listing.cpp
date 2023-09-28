@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <ostream>
 
 std::vector<listing *> listings;
 std::map<unsigned long, listing *> listings_map;
@@ -11,16 +12,24 @@ std::map<unsigned int, listing *> listings_map_mid;
 const char MAGIC_BYTES[] = {0x48, 0x4F, 0x4D, 0x45, 0x4C, 0x45, 0x53, 0x53};
 
 bool MAGIC_BYTE_READ(std::ifstream &file) {
-  char c;
+  char c[sizeof(MAGIC_BYTES)];
   try {
-    for (int i = 0; i < sizeof(MAGIC_BYTES); i++) {
-      file.read(&c, sizeof(c));
-      if (c != MAGIC_BYTES[i]) {
-        return false;
-      }
-    }
+    file.read(c, sizeof(c));
   } catch (std::exception e) {
-    return false;
+    std::cerr << "MAGIC ERROR: " << e.what() << std::endl;
+    char nc[sizeof(MAGIC_BYTES) +1];
+    for (int i = 0; i < sizeof(MAGIC_BYTES); i++) {
+      nc[i] = c[i];
+    }
+    nc[sizeof(MAGIC_BYTES)] = '\0';
+    std::cerr << nc << std::endl;
+    std::cerr.flush();
+    return false; 
+  }
+  for (int i = 0; i < sizeof(MAGIC_BYTES); i++) {
+    if (c[i] != MAGIC_BYTES[i]) {
+      return false;
+    }
   }
   return true;
 }
@@ -51,6 +60,8 @@ std::string read_string_from_file(std::ifstream &file) {
   file.read(buffer, size);
   std::string ret(buffer, size);
   delete[] buffer;
+  //std::cout << "READ_STRING: " << ret << std::endl;
+  //std::cout.flush();
   return ret;
 }
 
@@ -99,7 +110,7 @@ std::vector<listing> *load_listings_from_file(std::string filename) {
     std::string location = read_string_from_file(file);
     std::string numberofrooms = read_string_from_file(file);
     // read the listingID
-    unsigned long listingID;
+    unsigned long long listingID;
     file.read((char *)&listingID, sizeof(listingID));
     // read the url
     std::string url = read_string_from_file(file);
