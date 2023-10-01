@@ -233,7 +233,7 @@ void add_listing(listing listing) {
   list->dismiss_reason = listing.dismiss_reason;
   list->price = listing.price;
   list->tg_message_id = listing.tg_message_id;
-
+  list->url = listing.url;
   listings.push_back(list);
   listings_map[listing.listingID] = list;
   listings_map_mid[listing.tg_message_id] = list;

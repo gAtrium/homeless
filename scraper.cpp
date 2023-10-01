@@ -297,8 +297,8 @@ void scraper_main_thread() {
           1)); // Go ahead, find all the sleep calls here I dare you.
       int parsed_in_page = parse_page(response);
       if (parsed_in_page == 0) {
-        send_message_to_gc("Failed to parse any listings. Stopping thread.");
-        run_thread = false;
+        send_message_to_gc("Failed to parse any listings. skipping this one for now");
+        break;
       } else if (parsed_in_page < 50) {
         // we have less than 50 listings, we're done here
         break;
@@ -406,11 +406,10 @@ int parse_page(std::string response) {
   // std::ofstream i("parse_page_func_what.html", std::ofstream::out |
   // std::ofstream::trunc); i << response.substr(json_start); i.close();
   if (json_start == std::string::npos || json_end == std::string::npos) {
-    std::cout << "fuck" << std::endl;
-    exit(-1);
+    std::cerr << "Error finding the json tags in page." << std::endl;
     // we didn't find the script tags, something is wrong
-    send_message_to_gc(
-        "Could not find the script tags in the response. Something is wrong.");
+    //send_message_to_gc(
+    //"Could not find the script tags in the response. Something is wrong.");
     return 0;
   }
   // get the substring between those two
