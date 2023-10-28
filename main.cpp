@@ -157,12 +157,12 @@ int main() {
     //check if we have "min" in the text
     if (text.find("min") != std::string::npos) {
       auto price = text.substr(text.find("min") + 4);
-      bot.getApi().sendMessage(message->chat->id, "Setting minimum price to " + price);
+      bot.getApi().sendMessage(message->chat->id, set_min_price(price));
       return;
     }
     else if (text.find("max") != std::string::npos) {
       auto price = text.substr(text.find("max") + 4);
-      bot.getApi().sendMessage(message->chat->id, "Setting maximum price to " + price);
+      bot.getApi().sendMessage(message->chat->id, set_max_price(price));
       return;
     }
     else if(text.find("interval") != std::string::npos) {
