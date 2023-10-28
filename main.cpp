@@ -209,6 +209,7 @@ int main() {
     settings += "Max price: " + get_max_price() + "\n";
     settings += "Interval: " + get_interval() + "\n";
     settings += "Base url: " + get_base_url() + "\n";
+    settings += "Final url: " + get_final_url() + "\n";
     settings += "Query text: " + get_query_text() + "\n";
     settings += "Nono words: " + get_nono_words() + "\n";
     settings += "Thread is running: ";

@@ -180,6 +180,7 @@ std::string set_query_text(std::string query) {
   build_final_url();
   return "Set query text to " + query;
 }
+std::string get_final_url() {return final_url};
 std::string get_query_text() { return query; }
 
 void build_final_url() {

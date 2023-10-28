@@ -13,6 +13,7 @@ bool get_run_thread();
 std::string get_interval();
 std::string set_base_url(std::string url);
 std::string get_base_url();
+std::string get_final_url();
 std::string set_query_text(std::string query);
 std::string get_query_text();
 std::string add_filters_to_title(std::string nonoword);
