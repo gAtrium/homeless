@@ -170,6 +170,11 @@ int main() {
       bot.getApi().sendMessage(message->chat->id, set_interval(interval));
       return;
     }
+    else if(text.find("baseurl") != std::string::npos) {
+      auto baseurl = text.substr(text.find("baseurl") + 8);
+      bot.getApi().sendMessage(message->chat->id, set_base_url(baseurl));
+      return;
+    }
   });
   
   bot.getEvents().onCommand("curlupdate", [&bot](TgBot::Message::Ptr message) {
