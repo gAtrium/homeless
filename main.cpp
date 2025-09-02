@@ -171,7 +171,9 @@ int main() {
       return;
     }
     else if(text.find("baseurl") != std::string::npos) {
+      std::cout << "baseurl triggered"
       auto baseurl = text.substr(text.find("baseurl") + 8);
+      std::cout << "Set base url to " << baseurl << std::endl;
       bot.getApi().sendMessage(message->chat->id, set_base_url(baseurl));
       return;
     }
